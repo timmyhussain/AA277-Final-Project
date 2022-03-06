@@ -1,5 +1,6 @@
-from code import Drone, GhostServer
+from code import Drone, GhostServer, Shape
 import matplotlib.pyplot as plt
+import matplotlib.path as mpPath
 import numpy as np
 
 d1 = Drone(-1,-1,0,"")
@@ -8,11 +9,13 @@ d3 = Drone(1,1,2,"")
 d4 = Drone(1,-1,3,"")
 
 fleet = [d1,d2,d3,d4]
-targets = {0:(1,1),1:(1,-1),2:(-1,-1),3:(-1,1)}
-GS = GhostServer(fleet,targets,max_dist=2.5)
 
+pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose())
+
+GS = GhostServer(fleet,[],max_dist=2.5)
+
+GS.update_pattern(pattern)
 GS.update_neighbors()
-GS.update_targets()
 
 for k in range(50):
     print("Iteration %d"%k)

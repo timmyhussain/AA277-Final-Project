@@ -6,6 +6,7 @@ Created on Thu Feb 24 12:57:12 2022
 """
 from enum import Enum
 import matplotlib.pyplot as plt
+import matplotlib.path as mpPath
 import numpy as np
 from matplotlib import animation
 import matplotlib
@@ -19,6 +20,13 @@ class State(Enum):
     CONSENSUS = 2
     
     
+class Shape:
+    def __init__(self,vertices):
+        m,d = vertices.shape
+        if d != 2:
+            raise Exception("Expected vertices to have shape (m,2)")
+        self.vertices = vertices
+
 class Drone:
     def __init__(self, x_init, y_init, ix, identifier):
         self.x = x_init
@@ -36,6 +44,9 @@ class Drone:
     def set_target(self, x, y):
         self.target_x = x
         self.target_y = y
+
+    def set_pattern(self,pattern):
+        self.pattern = pattern
     
     def neighbor_check(self):
         if len(self.identifier) == 0:
@@ -100,7 +111,7 @@ class Drone:
         # If we've reached convergence assign a new ID and move to driving state
         deriv = sum([d.cons_var - self.cons_var for d in self.cons_neighbors])
         #print("Agent %s. ID = %s. State = %s. Cons = %.3f. Deriv = %.3f"%(self.name,self.identifier,self.state,self.cons_var,deriv))
-        self.cons_var += deriv*t
+        self.cons_var += 1.5*deriv*t
         if abs(deriv) < 0.05:
             self.converged = True
 
@@ -112,6 +123,35 @@ class Drone:
                 self.identifier += "D" if self.y < self.cons_var else "U"
             self.state = State.DRIVING
             self.cons_neighbors.clear()
+            self.set_pattern_target()
+
+    def set_pattern_target(self):
+
+        # Get dense points within pattern
+        path = mpPath.Path(self.pattern.vertices)
+        minx = self.pattern.vertices[:,0].min()
+        maxx = self.pattern.vertices[:,0].max()
+        miny = self.pattern.vertices[:,1].min()
+        maxy = self.pattern.vertices[:,1].max()
+        x,y = np.meshgrid(np.linspace(minx,maxx,100),np.linspace(miny,maxy,100))
+        x = x.flatten()
+        y = y.flatten()
+        pts = np.array([x,y]).transpose()
+        isin = path.contains_points(pts)
+        inpts = pts[isin]
+
+        # Partition points and get target
+        for i in range(len(self.identifier)):
+            if self.identifier[i] == 'L':
+                inpts = inpts[inpts[:,0] < np.mean(inpts[:,0])]
+            elif self.identifier[i] == 'R':
+                inpts = inpts[inpts[:,0]>= np.mean(inpts[:,0])]
+            elif self.identifier[i] == 'U':
+                inpts = inpts[inpts[:,1] >= np.mean(inpts[:,1])]
+            else:
+                inpts = inpts[inpts[:,1] < np.mean(inpts[:,1])]
+
+        self.set_target(np.mean(inpts[:,0]),np.mean(inpts[:,1]))
 
 
 class GhostServer:
@@ -120,6 +160,10 @@ class GhostServer:
         self.max_dist = max_dist
         self.targets = targets
         pass
+    
+    def update_pattern(self,pattern):
+        for d in self.fleet:
+            d.set_pattern(pattern)
     
     def update_targets(self, targets=None):
         for d1 in self.fleet:
