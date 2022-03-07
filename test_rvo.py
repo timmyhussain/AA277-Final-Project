@@ -30,11 +30,15 @@ if __name__ == "__main__":
     cmap = {0:"blue", 1: "red", 2: "green", 3: "black"} #for plotting
 
     #%% Simulation loop
-    for i in range(1500):
+    for i in range(200):
+        print("Iteration %d"%i)
+        for k in range(len(fleet)):
+            print("Agent %d. ID = %s. State = %s. ConsVar = %.3f"%(k,GS.fleet[k].identifier,GS.fleet[k].state,GS.fleet[k].cons_var))
         GS.update_neighbors()
         GS.update_positions()
 
     trajectories = GS.return_trajectories()
+    quit()
     #%% Plotting
 
     # for i in range(len(fleet)):

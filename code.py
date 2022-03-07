@@ -118,7 +118,7 @@ class Drone:
         # If we've reached convergence assign a new ID and move to driving state
         deriv = sum([d.cons_var - self.cons_var for d in self.cons_neighbors])
         #print("Agent %s. ID = %s. State = %s. Cons = %.3f. Deriv = %.3f"%(self.name,self.identifier,self.state,self.cons_var,deriv))
-        self.cons_var += 1.5*deriv*t
+        self.cons_var += 0.1*deriv
         if abs(deriv) < 0.05:
             self.converged = True
 
