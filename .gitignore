@@ -1,5 +1,4 @@
-.gitignore/
-__pycache__
-*.swp
+__pychache__/
+.*
 *.mp4
-.DS_Store*
+
