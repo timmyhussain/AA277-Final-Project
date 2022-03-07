@@ -1,5 +1,5 @@
 
-from code import Drone, GhostServer, Shape
+from code import Drone, GhostServer, Shape, State
 from enum import Enum
 import matplotlib.pyplot as plt
 import matplotlib.path as mpPath
@@ -30,10 +30,15 @@ if __name__ == "__main__":
     cmap = {0:"blue", 1: "red", 2: "green", 3: "black"} #for plotting
 
     #%% Simulation loop
-    for i in range(200):
-        print("Iteration %d"%i)
-        for k in range(len(fleet)):
-            print("Agent %d. ID = %s. State = %s. ConsVar = %.3f"%(k,GS.fleet[k].identifier,GS.fleet[k].state,GS.fleet[k].cons_var))
+    for i in range(1500):
+        if i%25 == 0:
+            print("Iteration %d"%i)
+            for k in range(len(fleet)):
+                target = "None"
+                if i > 1 and GS.fleet[k].state != State.CONSENSUS:
+                    target = "(%.3f,%.3f)"%(GS.fleet[k].target_x,GS.fleet[k].target_y)
+                position = "(%.3f,%.3f)"%(GS.fleet[k].x,GS.fleet[k].y)
+                print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
         GS.update_neighbors()
         GS.update_positions()
 
@@ -71,6 +76,7 @@ if __name__ == "__main__":
 
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=len(trajectories[0]), repeat = True)
 
+    print("Saving animation")
     #%% save animation
     f = r"trajectories2.mp4"
     writervideo = animation.FFMpegWriter(fps=1/t)
