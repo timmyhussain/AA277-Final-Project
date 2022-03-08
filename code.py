@@ -12,6 +12,7 @@ from matplotlib import animation
 import matplotlib.patches as patches
 import matplotlib
 from copy import deepcopy 
+from pattern import Shape, Pattern
 
 args = {"size": 20}
 matplotlib.rc("font", **args)
@@ -148,10 +149,18 @@ class Drone:
     def set_pattern_target(self):
 
         # Get dense points within pattern
-        minx = self.pattern.vertices[:,0].min()
-        maxx = self.pattern.vertices[:,0].max()
-        miny = self.pattern.vertices[:,1].min()
-        maxy = self.pattern.vertices[:,1].max()
+        if type(self.pattern) == Shape:
+            minx = self.pattern.vertices[:,0].min()
+            maxx = self.pattern.vertices[:,0].max()
+            miny = self.pattern.vertices[:,1].min()
+            maxy = self.pattern.vertices[:,1].max()
+        elif type(self.pattern) == Pattern:
+            minx = np.inf; miny = np.inf; maxx = -np.inf; maxy = -np.inf
+            for i in range(self.pattern.num_shapes):
+                minx = min(minx, self.pattern.vert_array[i][:,0].min())
+                maxx = max(maxx, self.pattern.vert_array[i][:,0].max())
+                miny = min(miny, self.pattern.vert_array[i][:,1].min())
+                maxy = max(maxy, self.pattern.vert_array[i][:,1].max())
         x,y = np.meshgrid(np.linspace(minx,maxx,100),np.linspace(miny,maxy,100))
         x = x.flatten()
         y = y.flatten()
@@ -223,6 +232,26 @@ class GhostServer:
         self.targets = targets
         self.pattern = pattern
         self.pattern_log = [deepcopy(pattern)]
+        for d in self.fleet:
+            d.set_pattern(self.pattern)
+
+    def init_fleet(self, num_drones, bound):
+        X = np.zeros(num_drones)
+        X[0] = bound * (2*np.random.random()-1)
+        Y = np.zeros(num_drones)
+        Y[0] = bound * (2*np.random.random()-1)
+        self.fleet.append(Drone(X[0],Y[0],0))
+
+        i = 1
+        while i < num_drones:
+            cand_x = bound * (2*np.random.random()-1)
+            cand_y = bound * (2*np.random.random()-1)
+            dists = np.sqrt((cand_x - X)**2 + (cand_y - Y)**2)
+            if (dists > 0.1).all():
+                X[i] = cand_x; Y[i] = cand_y
+                self.fleet.append(Drone(cand_x,cand_y,i))
+                i += 1
+
         for d in self.fleet:
             d.set_pattern(self.pattern)
 

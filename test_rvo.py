@@ -1,6 +1,6 @@
 
 from code import Drone, GhostServer, State
-from pattern import Shape
+from pattern import Shape, Pattern
 from enum import Enum
 import matplotlib.pyplot as plt
 import matplotlib.path as mpPath
@@ -12,41 +12,70 @@ import time
 args = {"size": 20}
 matplotlib.rc("font", **args)
 
+
 if __name__ == "__main__":
     #%% Initialization
 
     start_time = time.time()
 
+    # parameters
     t = 0.01
-    num_steps = 1000
-    num_agents = 4
+    num_steps = 1500
+    num_agents = 20
+    reduce = 10
+    axlim = 15
+    init_bounds = 1
 
-    pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose(), 'TRANSLATE')
+    #pattern = Shape(1.5*np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose(), 'TRANSLATE')
+    #pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose(), 'EXPAND')
+    # V = np.array([[0,5], 
+    #               [1,1],
+    #               [5,0],
+    #               [1,-1],
+    #               [0,-5],
+    #               [-1,-1],
+    #               [-5,0],
+    #               [-1,1]])
+    # pattern = Shape(V)
+
+    R = 5; th = np.linspace(0,2*np.pi,10)
+    V1 = np.array([R * np.cos(th), R* np.sin(th)])
+    V1 += 6
+    V1 = V1.T
+    V2 = np.array([[0,5], 
+                [1,1],
+                [5,0],
+                [1,-1],
+                [0,-5],
+                [-1,-1],
+                [-5,0],
+                [-1,1]])
+    V_arr = [V1,V2]
+    pattern = Pattern(V_arr)
 
     fleet = []
-    np.random.seed(1)
-    for i in range(num_agents):
-        x = 2*np.random.random()
-        y = 2*np.random.random()
-        fleet.append(Drone(x,y,i))
+    # np.random.seed(1)
+    # for i in range(num_agents):
+    #     x = 2*np.random.random()
+    #     y = 2*np.random.random()
+    #     fleet.append(Drone(x,y,i))
 
     GS = GhostServer(fleet,[],pattern,max_dist=2.5)
+    GS.init_fleet(num_agents, init_bounds)
 
     GS.update_neighbors()
-
-    reduce = 10
 
     #%% Simulation loop
     for i in range(num_steps):
         if i%25 == 0:
-            print("Iteration %d"%i)
-            print(GS.pattern.vertices)
-            # for k in range(len(fleet)):
-            #     target = "None"
-            #     if i > 1 and GS.fleet[k].state != State.CONSENSUS:
-            #         target = "(%.3f,%.3f)"%(GS.fleet[k].target_x,GS.fleet[k].target_y)
-            #     position = "(%.3f,%.3f)"%(GS.fleet[k].x,GS.fleet[k].y)
-            #     print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
+            print("Iteration %d of %d" %(i, num_steps))
+            #print(GS.pattern.vertices)
+            for k in range(len(fleet)):
+                target = "None"
+                if i > 1 and GS.fleet[k].state != State.CONSENSUS:
+                    target = "(%.3f,%.3f)"%(GS.fleet[k].target_x,GS.fleet[k].target_y)
+                position = "(%.3f,%.3f)"%(GS.fleet[k].x,GS.fleet[k].y)
+                print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
         GS.update_neighbors()
         GS.update_positions()
 
@@ -63,8 +92,8 @@ if __name__ == "__main__":
     #%% Plotting
 
     fig, ax = plt.subplots(figsize=[10, 10])
-    ax.set_xlim(-2, 2)
-    ax.set_ylim(-2, 2)
+    ax.set_xlim(-axlim, axlim)
+    ax.set_ylim(-axlim, axlim)
 
     cmap = {State.IDLE:"green",State.DRIVING:"orange",State.CONSENSUS:"red"}
 
@@ -82,8 +111,8 @@ if __name__ == "__main__":
         # plot pattern
         patterns[j].visualize(ax)
 
-        ax.set_xlim(-2, 2)
-        ax.set_ylim(-2, 2)
+        ax.set_xlim(-axlim, axlim)
+        ax.set_ylim(-axlim, axlim)
         plt.xlabel("$x$ position")
         plt.ylabel("$y$ position")
 

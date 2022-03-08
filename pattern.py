@@ -11,14 +11,14 @@ class Shape:
         self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
         self.path = mpPath.Path(vertices)
         self.vertices = self.path.vertices # np array
-        m,d = vertices.shape
+        m,d = self.vertices.shape
         if d != 2:
             raise Exception("Expected vertices to have shape (m,2)")
 
         # Parameters
         self.dx = 1e-2; self.dy = 1e-2 # for translation
         self.center = np.mean(vertices, axis=0) # for expansion
-        self.expand_rate = 0.1
+        self.expand_rate = 1e-2
 
     def update(self):
         if self.update_rule == 'STATIC':
@@ -34,7 +34,7 @@ class Shape:
         self.path = mpPath.Path(self.vertices)
 
     def visualize(self, ax):
-        patch = patches.PathPatch(self.path, facecolor='orange', alpha = 0.2, lw=0)
+        patch = patches.PathPatch(self.path, facecolor='blue', alpha = 0.2, lw=0)
         ax.add_patch(patch)
 
 
@@ -42,7 +42,8 @@ class Pattern:
     """
     Pattern defined by a collection of shapes (each defined by boundary points)
     """
-    def __init__(self, vert_array):
+    def __init__(self, vert_array, update_rule='STATIC'):
+        self.vert_array = vert_array
         self.num_shapes = len(vert_array)
         paths = [None] * self.num_shapes
 
@@ -51,15 +52,23 @@ class Pattern:
         
         self.path = mpPath.Path.make_compound_path(*paths)
 
-    # Pattern dynamics
-    def update(self):
-        # randomly oscillate point(s) sinusoidally
-        # (for now just do the first point)
-        #self.x += 
+        self.update_rule = update_rule
 
-        # simple translation
-        self.x += 0.1
-        self.y += 0.1
+        # Parameters
+        self.dx = 1e-2; self.dy = 1e-2 # for translation
+
+    def update(self):
+        if self.update_rule == 'STATIC':
+            pass
+        # elif self.update_rule == 'TRANSLATE':
+        #     for i in range(self.num_shapes):
+        #         self.verts[i] += [self.dx, self.dy]
+        
+        # self.path = mpPath.Path(self.vert_array)
+
+    def visualize(self, ax):
+        patch = patches.PathPatch(self.path, facecolor='blue', alpha = 0.2, lw=0)
+        ax.add_patch(patch)
 
 
 
@@ -73,26 +82,33 @@ class ShadowPattern:
         
 # Test out some shapes and patterns
 if __name__ == "__main__":
+
     # Circle
     R = 5; t = np.linspace(0,2*np.pi,10)
-    V = np.array([R * np.cos(t), R* np.sin(t)])
-    P = Shape(V.T, 'EXPAND')
+    V1 = np.array([R * np.cos(t), R* np.sin(t)])
+    #P = Shape(V.T, 'EXPAND')
+    V1 += 6
+    V1 = V1.T
 
     # Non-convex (star shape)
-    V = [(5,0), 
-         (1,1),
-         (0,5),
-         (1,-1),
-         (0,-5),
-         (-1,-1),
-         (-5,0),
-         (-1,1)]
+    V2 = np.array([[0,5], 
+              [1,1],
+              [5,0],
+              [1,-1],
+              [0,-5],
+              [-1,-1],
+              [-5,0],
+              [-1,1]])
+
+    V_arr = [V1,V2]
+    P = Pattern(V_arr)
 
     # visualize
     num_iters = 20
+    axlim = 12
     fig, ax = plt.subplots()
-    ax.set_xlim(-6, 6)
-    ax.set_ylim(-6, 6)
+    ax.set_xlim(-axlim, axlim)
+    ax.set_ylim(-axlim, axlim)
 
     def init():
         ax.clear()
@@ -101,8 +117,8 @@ if __name__ == "__main__":
         ax.clear()
         P.update()
         P.visualize(ax)
-        ax.set_xlim(-6, 6)
-        ax.set_ylim(-6, 6)
+        ax.set_xlim(-axlim, axlim)
+        ax.set_ylim(-axlim, axlim)
         plt.xlabel("$x$ position")
         plt.ylabel("$y$ position")
 
