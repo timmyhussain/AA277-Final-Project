@@ -21,6 +21,42 @@ class State(Enum):
     CONSENSUS = 2
 
 
+<<<<<<< HEAD
+=======
+class Shape:
+    def __init__(self, vertices, update_rule='STATIC'):
+
+        self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
+        self.path = mpPath.Path(vertices)
+        self.vertices = self.path.vertices # np array
+        m,d = vertices.shape
+        if d != 2:
+            raise Exception("Expected vertices to have shape (m,2)")
+
+        # Parameters
+        self.dx = 0.1; self.dy = 0.1 # for translation
+        self.center = np.mean(vertices, axis=0) # for expansion
+        self.expand_rate = 0.1
+
+    def update(self):
+        if self.update_rule == 'STATIC':
+            pass
+        elif self.update_rule == 'TRANSLATE':
+            # Simple translation
+            self.vertices += [self.dx, self.dy]
+        elif self.update_rule == 'EXPAND':
+            # Expand points out from center
+            dx = self.expand_rate * (self.vertices - self.center)
+            self.vertices += dx
+
+        self.path = mpPath.Path(self.vertices)
+
+    def visualize(self, ax):
+        patch = patches.PathPatch(self.path, facecolor='blue', alpha = 0.2, lw=0)
+        ax.add_patch(patch)
+
+
+>>>>>>> 8f5da21831c97ec91c030a39e36ab2562d0851a0
 class Drone:
     def __init__(self, x_init, y_init, ix, identifier=""):
         self.x = x_init
@@ -36,6 +72,17 @@ class Drone:
         self.cons_neighbors = set()
         self.vx = 0
         self.vy = 0
+
+        self.speed_max = 1.5
+        self.speed_pref = 1
+        self.speed_min = 0.5
+
+        speeds = np.linspace(self.speed_min, self.speed_max, 10)
+        dirs = np.linspace(0., 2*np.pi, 36)
+        self.vels = []
+        for i in range(10):
+            for j in range(36):
+                self.vels.append(np.array([[speeds[i]*np.cos(dirs[j])], [speeds[i]*np.sin(dirs[j])]]))
 
         self.log_now()
 
@@ -65,7 +112,7 @@ class Drone:
             self.consensus_step()
             self.vx = 0
             self.vy = 0
-        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.001:
+        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.05:
             self.vx = 0
             self.vy = 0
         else:
@@ -82,7 +129,7 @@ class Drone:
 
     def log_now(self):
         self.log.append((self.x, self.y))
-        if self.state == State.DRIVING and np.linalg.norm(np.array([self.target_x,self.target_y])-np.array([self.x,self.y])) < 0.01:
+        if self.state == State.DRIVING and np.linalg.norm(np.array([self.target_x,self.target_y])-np.array([self.x,self.y])) < 0.05:
             self.state_log.append(State.IDLE)
         else:
             self.state_log.append(self.state)
@@ -164,20 +211,12 @@ class Drone:
 
         # define some constants defining robot geometries and check_constraints
         R = 0.1 # radius of circular robots
-        speed_max = 1.5
-        speed_pref = 1
-        speed_min = 0.5
 
         vA = np.array([[self.vx], [self.vy]])
         pos_A_target = np.array([[self.target_x-self.x], [self.target_y-self.y]])
-        v_pref = speed_pref * pos_A_target / np.linalg.norm(pos_A_target) # preferred speed in the direction of target
+        v_pref = self.speed_pref * pos_A_target / np.linalg.norm(pos_A_target) # preferred speed in the direction of target
 
-        speeds = np.linspace(speed_min, speed_max, 10)
-        dirs = np.linspace(0., 2*np.pi, 36)
-        vels = []
-        for i in range(10):
-            for j in range(36):
-                vels.append(np.array([[speeds[i]*np.cos(dirs[j])], [speeds[i]*np.sin(dirs[j])]]))
+        vels = self.vels.copy()
 
         # Loop through all drones, remove the velocities that are in the velocity obstacles
 
