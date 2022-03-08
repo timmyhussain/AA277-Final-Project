@@ -246,15 +246,18 @@ class Drone:
 
 
 class GhostServer:
-    def __init__(self, drones, targets, max_dist = 5):
+    def __init__(self, drones, targets, pattern, max_dist = 5):
         self.fleet = drones
         self.max_dist = max_dist
         self.targets = targets
-        pass
-
-    def update_pattern(self,pattern):
+        self.pattern = pattern
         for d in self.fleet:
-            d.set_pattern(pattern)
+            d.set_pattern(self.pattern)
+
+    def update_pattern(self):
+        self.pattern.update()
+        for d in self.fleet:
+            d.set_pattern(self.pattern)
 
     def update_targets(self, targets=None):
         for d1 in self.fleet:
