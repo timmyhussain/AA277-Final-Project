@@ -44,9 +44,8 @@ class Shape:
             dx = self.expand_rate * (self.vertices - self.center)
             self.vertices += dx
 
-    def visualize(self):
-        pass
-        
+    # def visualize(self):
+
 
 
 class Drone:
@@ -93,7 +92,7 @@ class Drone:
             self.consensus_step()
             self.vx = 0
             self.vy = 0
-        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 10^-3:
+        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.05:
             self.vx = 0
             self.vy = 0
         else:
