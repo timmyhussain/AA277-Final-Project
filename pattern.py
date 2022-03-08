@@ -16,7 +16,7 @@ class Shape:
             raise Exception("Expected vertices to have shape (m,2)")
 
         # Parameters
-        self.dx = 1e-3; self.dy = 1e-3 # for translation
+        self.dx = 1e-2; self.dy = 1e-2 # for translation
         self.center = np.mean(vertices, axis=0) # for expansion
         self.expand_rate = 0.1
 

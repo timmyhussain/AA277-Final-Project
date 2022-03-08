@@ -18,7 +18,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     t = 0.01
-    num_steps = 500
+    num_steps = 1000
     num_agents = 4
 
     pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose(), 'TRANSLATE')
@@ -34,6 +34,8 @@ if __name__ == "__main__":
 
     GS.update_neighbors()
 
+    reduce = 10
+
     #%% Simulation loop
     for i in range(num_steps):
         if i%25 == 0:
@@ -47,15 +49,16 @@ if __name__ == "__main__":
             #     print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
         GS.update_neighbors()
         GS.update_positions()
-        GS.update_pattern()
+
+        if i % reduce == 0:
+            GS.update_pattern()
 
     trajectories = GS.return_trajectories()
     states = GS.return_states()
-    reduce = 10
     trajectories = trajectories[:,range(0,num_steps,reduce),:]
     states = states[:,range(0,num_steps,reduce)]
-    patterns = GS.pattern_log[0:num_steps:reduce]
-    print(patterns[0])
+    #patterns = GS.pattern_log[0:num_steps:reduce]
+    patterns = GS.pattern_log
 
     #%% Plotting
 

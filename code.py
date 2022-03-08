@@ -148,7 +148,6 @@ class Drone:
     def set_pattern_target(self):
 
         # Get dense points within pattern
-        path = mpPath.Path(self.pattern.vertices)
         minx = self.pattern.vertices[:,0].min()
         maxx = self.pattern.vertices[:,0].max()
         miny = self.pattern.vertices[:,1].min()
@@ -157,7 +156,7 @@ class Drone:
         x = x.flatten()
         y = y.flatten()
         pts = np.array([x,y]).transpose()
-        isin = path.contains_points(pts)
+        isin = self.pattern.path.contains_points(pts)
         inpts = pts[isin]
 
         # Partition points and get target
@@ -232,6 +231,8 @@ class GhostServer:
         self.pattern_log.append(deepcopy(self.pattern))
         for d in self.fleet:
             d.set_pattern(self.pattern)
+            d.set_pattern_target()
+
 
     def update_targets(self, targets=None):
         for d1 in self.fleet:
