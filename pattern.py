@@ -1,16 +1,20 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.path as mpPath
 
 class Pattern:
     '''
-    Pattern defined by a set of boundary points
+    Pattern defined by a collection of shapes (each defined by boundary points)
     '''
-    def __init__(self, points):
-        self.p = points
-        self.center = np.mean(points, axis=1)
-        self.x = points[0][:]
-        self.y = points[1][:]
+    def __init__(self, vert_array):
+        self.num_shapes = len(vert_array)
+        paths = [None] * self.num_shapes
+
+        for i in range(self.num_shapes):
+            paths[i] = mpPath.Path(vert_array[i])
+        
+        self.path = mpPath.Path.make_compound_path(*paths)
 
     # Pattern dynamics
     def update(self):
@@ -21,6 +25,15 @@ class Pattern:
         # simple translation
         self.x += 0.1
         self.y += 0.1
+
+
+
+class ShadowPattern:
+    '''
+    Pattern set induced by point light source casting shadows
+    '''
+    def __init__(self, )
+
         
 # Test out some patterns
 if __name__ == "__main__":

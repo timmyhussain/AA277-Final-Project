@@ -21,11 +21,32 @@ class State(Enum):
 
 
 class Shape:
-    def __init__(self,vertices):
+    def __init__(self, vertices, update_rule='STATIC'):
         m,d = vertices.shape
         if d != 2:
             raise Exception("Expected vertices to have shape (m,2)")
         self.vertices = vertices
+        self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
+
+        # Parameters
+        self.dx = 0.1; self.dy = 0.1 # for translation
+        self.center = np.mean(vertices, axis=0) # for expansion
+        self.expand_rate = 0.1
+
+    def update(self):
+        if self.update_rule == 'STATIC':
+            pass
+        else if self.update_rule == 'TRANSLATE':
+            # Simple translation
+            self.vertices += [self.dx, self.dy]
+        else if self.update_rule == 'EXPAND':
+            # Expand points out from center
+            dx = self.expand_rate * (self.vertices - self.center)
+            self.vertices += dx
+
+    def visualize(self):
+        
+
 
 class Drone:
     def __init__(self, x_init, y_init, ix, identifier):
