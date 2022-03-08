@@ -1,4 +1,5 @@
-from code import Drone, GhostServer, Shape
+from code import Drone, GhostServer
+from pattern import Shape
 import matplotlib.pyplot as plt
 import matplotlib.path as mpPath
 import numpy as np

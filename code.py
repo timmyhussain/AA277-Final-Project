@@ -11,6 +11,8 @@ import numpy as np
 from matplotlib import animation
 import matplotlib.patches as patches
 import matplotlib
+from copy import deepcopy 
+
 args = {"size": 20}
 matplotlib.rc("font", **args)
 
@@ -19,39 +21,6 @@ class State(Enum):
     IDLE = 0
     DRIVING = 1
     CONSENSUS = 2
-
-
-class Shape:
-    def __init__(self, vertices, update_rule='STATIC'):
-
-        self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
-        self.path = mpPath.Path(vertices)
-        self.vertices = self.path.vertices # np array
-        m,d = vertices.shape
-        if d != 2:
-            raise Exception("Expected vertices to have shape (m,2)")
-
-        # Parameters
-        self.dx = 0.1; self.dy = 0.1 # for translation
-        self.center = np.mean(vertices, axis=0) # for expansion
-        self.expand_rate = 0.1
-
-    def update(self):
-        if self.update_rule == 'STATIC':
-            pass
-        elif self.update_rule == 'TRANSLATE':
-            # Simple translation
-            self.vertices += [self.dx, self.dy]
-        elif self.update_rule == 'EXPAND':
-            # Expand points out from center
-            dx = self.expand_rate * (self.vertices - self.center)
-            self.vertices += dx
-
-        self.path = mpPath.Path(self.vertices)
-
-    def visualize(self, ax):
-        patch = patches.PathPatch(self.path, facecolor='blue', alpha = 0.2, lw=0)
-        ax.add_patch(patch)
 
 
 class Drone:
@@ -179,7 +148,6 @@ class Drone:
     def set_pattern_target(self):
 
         # Get dense points within pattern
-        path = mpPath.Path(self.pattern.vertices)
         minx = self.pattern.vertices[:,0].min()
         maxx = self.pattern.vertices[:,0].max()
         miny = self.pattern.vertices[:,1].min()
@@ -188,7 +156,7 @@ class Drone:
         x = x.flatten()
         y = y.flatten()
         pts = np.array([x,y]).transpose()
-        isin = path.contains_points(pts)
+        isin = self.pattern.path.contains_points(pts)
         inpts = pts[isin]
 
         # Partition points and get target
@@ -254,13 +222,17 @@ class GhostServer:
         self.max_dist = max_dist
         self.targets = targets
         self.pattern = pattern
+        self.pattern_log = [deepcopy(pattern)]
         for d in self.fleet:
             d.set_pattern(self.pattern)
 
     def update_pattern(self):
         self.pattern.update()
+        self.pattern_log.append(deepcopy(self.pattern))
         for d in self.fleet:
             d.set_pattern(self.pattern)
+            d.set_pattern_target()
+
 
     def update_targets(self, targets=None):
         for d1 in self.fleet:
