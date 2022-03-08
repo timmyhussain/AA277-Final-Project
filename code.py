@@ -36,16 +36,16 @@ class Shape:
     def update(self):
         if self.update_rule == 'STATIC':
             pass
-        else if self.update_rule == 'TRANSLATE':
+        elif self.update_rule == 'TRANSLATE':
             # Simple translation
             self.vertices += [self.dx, self.dy]
-        else if self.update_rule == 'EXPAND':
+        elif self.update_rule == 'EXPAND':
             # Expand points out from center
             dx = self.expand_rate * (self.vertices - self.center)
             self.vertices += dx
 
-    def visualize(self):
-        
+    # def visualize(self):
+
 
 
 class Drone:
@@ -90,7 +90,7 @@ class Drone:
             self.consensus_step()
             self.vx = 0
             self.vy = 0
-        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 10^-3:
+        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.05:
             self.vx = 0
             self.vy = 0
         else:
