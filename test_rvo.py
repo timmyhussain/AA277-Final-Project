@@ -53,8 +53,8 @@ if __name__ == "__main__":
     #     plt.plot(trajectories[i, :, 0], trajectories[i, :, 1], label="Drone: "+str(i))
 
     fig, ax = plt.subplots(figsize=[10, 10])
-    ax.set_xlim(-8, 2)
-    ax.set_ylim(-8, 2)
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-2, 2)
     # data = np.array([o.reshape(o.shape[1], -1) for o in outputs])
     # sns.heatmap(data[0], vmax=1, square=True)
     # plt.scatter(0, 1, s=100)
@@ -66,16 +66,14 @@ if __name__ == "__main__":
         plt.ylabel("$y$ position")
 
     def init():
-          # sns.heatmap(data[0], vmax=1, square=True, cbar=False)
-        for i in range(len(fleet)):
-            plt.plot(trajectories[i, 0, 0], trajectories[i, 0, 1], marker="o",label="Drone: "+str(i), color = cmap[i])
-        plt.xlabel("$x$ position")
-        plt.ylabel("$y$ position")
+        ax.clear()
 
     def animate(j):
-        # sns.heatmap(data[i], vmax=1, square=True, cbar=False)
+        ax.clear()
         for i in range(len(fleet)):
-            plt.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[i])
+            ax.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[i])
+        ax.set_xlim(-2, 2)
+        ax.set_ylim(-2, 2)
         plt.xlabel("$x$ position")
         plt.ylabel("$y$ position")
 
