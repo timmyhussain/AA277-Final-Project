@@ -18,8 +18,8 @@ if __name__ == "__main__":
     start_time = time.time()
 
     t = 0.01
-    num_steps = 600
-    num_agents = 6
+    num_steps = 500
+    num_agents = 4
 
     pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose(), 'TRANSLATE')
 
@@ -35,25 +35,27 @@ if __name__ == "__main__":
     GS.update_neighbors()
 
     #%% Simulation loop
-    # for i in range(num_steps):
-    #     if i%25 == 0:
-    #         print("Iteration %d"%i)
-    #         for k in range(len(fleet)):
-    #             target = "None"
-    #             if i > 1 and GS.fleet[k].state != State.CONSENSUS:
-    #                 target = "(%.3f,%.3f)"%(GS.fleet[k].target_x,GS.fleet[k].target_y)
-    #             position = "(%.3f,%.3f)"%(GS.fleet[k].x,GS.fleet[k].y)
-    #             print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
-    #     GS.update_neighbors()
-    #     GS.update_positions()
-    #     GS.update_pattern()
+    for i in range(num_steps):
+        if i%25 == 0:
+            print("Iteration %d"%i)
+            print(GS.pattern.vertices)
+            # for k in range(len(fleet)):
+            #     target = "None"
+            #     if i > 1 and GS.fleet[k].state != State.CONSENSUS:
+            #         target = "(%.3f,%.3f)"%(GS.fleet[k].target_x,GS.fleet[k].target_y)
+            #     position = "(%.3f,%.3f)"%(GS.fleet[k].x,GS.fleet[k].y)
+            #     print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
+        GS.update_neighbors()
+        GS.update_positions()
+        GS.update_pattern()
 
-    # trajectories = GS.return_trajectories()
-    # states = GS.return_states()
-    # reduce = 10
-    # trajectories = trajectories[:,range(0,num_steps,reduce),:]
-    # states = states[:,range(0,num_steps,reduce)]
+    trajectories = GS.return_trajectories()
+    states = GS.return_states()
     reduce = 10
+    trajectories = trajectories[:,range(0,num_steps,reduce),:]
+    states = states[:,range(0,num_steps,reduce)]
+    patterns = GS.pattern_log[0:num_steps:reduce]
+    print(patterns[0])
 
     #%% Plotting
 
@@ -69,35 +71,20 @@ if __name__ == "__main__":
     def animate(j):
         ax.clear()
 
-        if j%25 == 0:
-            print("Iteration %d"%j)
-            for k in range(len(fleet)):
-                target = "None"
-                if j > 1 and GS.fleet[k].state != State.CONSENSUS:
-                    target = "(%.3f,%.3f)"%(GS.fleet[k].target_x,GS.fleet[k].target_y)
-                position = "(%.3f,%.3f)"%(GS.fleet[k].x,GS.fleet[k].y)
-                print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
-        
-        GS.update_neighbors()
-        GS.update_positions()
-        GS.update_pattern()
-
-
         # plot drones
-        if j%reduce == 0:
-            for i in range(len(fleet)):
-                #ax.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[states[i,j]])
-                ax.plot(GS.fleet[i].x, GS.fleet[i].y, marker="o", label="Drone: "+str(i), color = cmap[GS.fleet[i].state])
+        for i in range(len(fleet)):
+            ax.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[states[i,j]])
+            #ax.plot(GS.fleet[i].x, GS.fleet[i].y, marker="o", label="Drone: "+str(i), color = cmap[GS.fleet[i].state])
 
-            # plot pattern
-            GS.pattern.visualize(ax)
+        # plot pattern
+        patterns[j].visualize(ax)
 
-            ax.set_xlim(-2, 2)
-            ax.set_ylim(-2, 2)
-            plt.xlabel("$x$ position")
-            plt.ylabel("$y$ position")
+        ax.set_xlim(-2, 2)
+        ax.set_ylim(-2, 2)
+        plt.xlabel("$x$ position")
+        plt.ylabel("$y$ position")
 
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=num_steps, repeat = True)
+    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=len(trajectories[0]), repeat = True)
 
     print("Saving animation")
     #%% save animation

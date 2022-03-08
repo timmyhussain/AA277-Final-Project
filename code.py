@@ -11,6 +11,8 @@ import numpy as np
 from matplotlib import animation
 import matplotlib.patches as patches
 import matplotlib
+from copy import deepcopy 
+
 args = {"size": 20}
 matplotlib.rc("font", **args)
 
@@ -21,42 +23,6 @@ class State(Enum):
     CONSENSUS = 2
 
 
-<<<<<<< HEAD
-=======
-class Shape:
-    def __init__(self, vertices, update_rule='STATIC'):
-
-        self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
-        self.path = mpPath.Path(vertices)
-        self.vertices = self.path.vertices # np array
-        m,d = vertices.shape
-        if d != 2:
-            raise Exception("Expected vertices to have shape (m,2)")
-
-        # Parameters
-        self.dx = 0.1; self.dy = 0.1 # for translation
-        self.center = np.mean(vertices, axis=0) # for expansion
-        self.expand_rate = 0.1
-
-    def update(self):
-        if self.update_rule == 'STATIC':
-            pass
-        elif self.update_rule == 'TRANSLATE':
-            # Simple translation
-            self.vertices += [self.dx, self.dy]
-        elif self.update_rule == 'EXPAND':
-            # Expand points out from center
-            dx = self.expand_rate * (self.vertices - self.center)
-            self.vertices += dx
-
-        self.path = mpPath.Path(self.vertices)
-
-    def visualize(self, ax):
-        patch = patches.PathPatch(self.path, facecolor='blue', alpha = 0.2, lw=0)
-        ax.add_patch(patch)
-
-
->>>>>>> 8f5da21831c97ec91c030a39e36ab2562d0851a0
 class Drone:
     def __init__(self, x_init, y_init, ix, identifier=""):
         self.x = x_init
@@ -257,11 +223,13 @@ class GhostServer:
         self.max_dist = max_dist
         self.targets = targets
         self.pattern = pattern
+        self.pattern_log = [deepcopy(pattern)]
         for d in self.fleet:
             d.set_pattern(self.pattern)
 
     def update_pattern(self):
         self.pattern.update()
+        self.pattern_log.append(deepcopy(self.pattern))
         for d in self.fleet:
             d.set_pattern(self.pattern)
 

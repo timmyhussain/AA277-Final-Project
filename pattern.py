@@ -5,7 +5,6 @@ import matplotlib.path as mpPath
 from matplotlib import animation
 import matplotlib.patches as patches
 
-
 class Shape:
     def __init__(self, vertices, update_rule='STATIC'):
     
@@ -17,7 +16,7 @@ class Shape:
             raise Exception("Expected vertices to have shape (m,2)")
 
         # Parameters
-        self.dx = 0.1; self.dy = 0.1 # for translation
+        self.dx = 1e-3; self.dy = 1e-3 # for translation
         self.center = np.mean(vertices, axis=0) # for expansion
         self.expand_rate = 0.1
 
@@ -39,13 +38,10 @@ class Shape:
         ax.add_patch(patch)
 
 
-
-
-
 class Pattern:
-    '''
+    """
     Pattern defined by a collection of shapes (each defined by boundary points)
-    '''
+    """
     def __init__(self, vert_array):
         self.num_shapes = len(vert_array)
         paths = [None] * self.num_shapes
@@ -68,9 +64,9 @@ class Pattern:
 
 
 class ShadowPattern:
-    '''
+    """
     Pattern set induced by point light source casting shadows
-    '''
+    """
     def __init__(self):
         pass
 
