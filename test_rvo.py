@@ -13,8 +13,8 @@ if __name__ == "__main__":
     #%% Initialization
 
     t = 0.01
-    num_steps = 500
-    num_agents = 8
+    num_steps = 600
+    num_agents = 20
 
     pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose())
 
@@ -44,26 +44,17 @@ if __name__ == "__main__":
         GS.update_positions()
 
     trajectories = GS.return_trajectories()
+    states = GS.return_states()
     reduce = 10
     trajectories = trajectories[:,range(0,num_steps,reduce),:]
-    print(trajectories.shape)
+    states = states[:,range(0,num_steps,reduce)]
     #%% Plotting
-
-    # for i in range(len(fleet)):
-    #     plt.plot(trajectories[i, :, 0], trajectories[i, :, 1], label="Drone: "+str(i))
 
     fig, ax = plt.subplots(figsize=[10, 10])
     ax.set_xlim(-2, 2)
     ax.set_ylim(-2, 2)
-    # data = np.array([o.reshape(o.shape[1], -1) for o in outputs])
-    # sns.heatmap(data[0], vmax=1, square=True)
-    # plt.scatter(0, 1, s=100)
-    cmap = {}
-    for i in range(len(fleet)):
-        p = plt.plot(trajectories[i, 0, 0], trajectories[i, 0, 1], label="Drone: "+str(i))
-        cmap[i] = p[0].get_color()
-        plt.xlabel("$x$ position")
-        plt.ylabel("$y$ position")
+
+    cmap = {State.IDLE:"green",State.DRIVING:"orange",State.CONSENSUS:"red"}
 
     def init():
         ax.clear()
