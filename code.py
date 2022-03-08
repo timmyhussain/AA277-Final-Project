@@ -36,15 +36,16 @@ class Shape:
     def update(self):
         if self.update_rule == 'STATIC':
             pass
-        else if self.update_rule == 'TRANSLATE':
+        elif self.update_rule == 'TRANSLATE':
             # Simple translation
             self.vertices += [self.dx, self.dy]
-        else if self.update_rule == 'EXPAND':
+        elif self.update_rule == 'EXPAND':
             # Expand points out from center
             dx = self.expand_rate * (self.vertices - self.center)
             self.vertices += dx
 
     def visualize(self):
+        pass
         
 
 
@@ -54,7 +55,7 @@ class Drone:
         self.y = y_init
         self.cons_var = x_init
         self.log = []
-        self.log_now()
+        self.state_log = []
         self.neighbors = set()
         self.name = ix
         self.identifier = identifier
@@ -63,6 +64,8 @@ class Drone:
         self.cons_neighbors = set()
         self.vx = 0
         self.vy = 0
+
+        self.log_now()
 
     def set_target(self, x, y):
         self.target_x = x
@@ -107,6 +110,10 @@ class Drone:
 
     def log_now(self):
         self.log.append((self.x, self.y))
+        if self.state == State.DRIVING and np.linalg.norm(np.array([self.target_x,self.target_y])-np.array([self.x,self.y])) < 0.01:
+            self.state_log.append(State.IDLE)
+        else:
+            self.state_log.append(self.state)
 
     def get_position(self):
         return np.array([self.x, self.y])
@@ -269,6 +276,8 @@ class GhostServer:
     def return_trajectories(self):
         return np.array([d.log for d in self.fleet])
 
+    def return_states(self):
+        return np.array([d.state_log for d in self.fleet])
 
 
 if __name__ == "__main__":
