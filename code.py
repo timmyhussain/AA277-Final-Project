@@ -98,7 +98,7 @@ class Drone:
             self.consensus_step()
             self.vx = 0
             self.vy = 0
-        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.05:
+        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.001:
             self.vx = 0
             self.vy = 0
         else:
