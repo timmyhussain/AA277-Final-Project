@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.path as mpPath
 import numpy as np
 from matplotlib import animation
+import matplotlib.patches as patches
 import matplotlib
 args = {"size": 20}
 matplotlib.rc("font", **args)
@@ -22,11 +23,13 @@ class State(Enum):
 
 class Shape:
     def __init__(self, vertices, update_rule='STATIC'):
+    
+        self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
+        self.path = mpPath.Path(vertices)
+        self.vertices = self.path.vertices # np array
         m,d = vertices.shape
         if d != 2:
             raise Exception("Expected vertices to have shape (m,2)")
-        self.vertices = vertices
-        self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
 
         # Parameters
         self.dx = 0.1; self.dy = 0.1 # for translation
@@ -43,9 +46,12 @@ class Shape:
             # Expand points out from center
             dx = self.expand_rate * (self.vertices - self.center)
             self.vertices += dx
+        
+        self.path = mpPath.Path(self.vertices)
 
-    # def visualize(self):
-
+    def visualize(self, ax):
+        patch = patches.PathPatch(self.path, facecolor='orange', alpha = 0.2, lw=0)
+        ax.add_patch(patch)
 
 
 class Drone:

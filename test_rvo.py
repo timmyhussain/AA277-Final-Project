@@ -61,8 +61,14 @@ if __name__ == "__main__":
 
     def animate(j):
         ax.clear()
+
+        # plot drones
         for i in range(len(fleet)):
-            ax.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[states[i,j]])
+            ax.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[i])
+
+        # plot pattern
+        pattern.visualize(ax)
+
         ax.set_xlim(-2, 2)
         ax.set_ylim(-2, 2)
         plt.xlabel("$x$ position")

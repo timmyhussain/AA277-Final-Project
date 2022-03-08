@@ -2,6 +2,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.path as mpPath
+from matplotlib import animation
+import matplotlib.patches as patches
+
+from code import Shape
 
 class Pattern:
     '''
@@ -32,19 +36,45 @@ class ShadowPattern:
     '''
     Pattern set induced by point light source casting shadows
     '''
-    def __init__(self, )
+    def __init__(self):
+        pass
 
         
-# Test out some patterns
+# Test out some shapes and patterns
 if __name__ == "__main__":
     # Circle
-    R = 5
-    t = np.linspace(0,2*np.pi,10)
-    pts = [R * np.cos(t), R* np.sin(t)]
+    R = 5; t = np.linspace(0,2*np.pi,10)
+    V = np.array([R * np.cos(t), R* np.sin(t)])
+    P = Shape(V.T, 'EXPAND')
 
-    P = Pattern(pts)
+    # Non-convex (star shape)
+    V = [(5,0), 
+         (1,1),
+         (0,5),
+         (1,-1),
+         (0,-5),
+         (-1,-1),
+         (-5,0),
+         (-1,1)]
 
     # visualize
-    plt.scatter(P.x, P.y)
-    plt.plot(P.x, P.y)
+    num_iters = 20
+    fig, ax = plt.subplots()
+    ax.set_xlim(-6, 6)
+    ax.set_ylim(-6, 6)
+
+    def init():
+        ax.clear()
+
+    def animate(j):
+        ax.clear()
+        P.update()
+        P.visualize(ax)
+        ax.set_xlim(-6, 6)
+        ax.set_ylim(-6, 6)
+        plt.xlabel("$x$ position")
+        plt.ylabel("$y$ position")
+
+    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=num_iters, repeat = True)
+
     plt.show()
