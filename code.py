@@ -261,7 +261,13 @@ class GhostServer:
         for d in self.fleet:
             d.set_pattern(self.pattern)
             d.set_pattern_target()
-
+    
+    def set_pattern(self, pattern):
+        self.pattern = pattern
+        self.pattern_log.append(deepcopy(self.pattern))
+        for d in self.fleet:
+            d.set_pattern(self.pattern)
+            d.set_pattern_target()
 
     def update_targets(self, targets=None):
         for d1 in self.fleet:

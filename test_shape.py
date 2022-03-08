@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.path as mpPath
 import matplotlib.patches as patches
+from pattern import Pattern
 
 def create_blob(rad_fun,N,c=np.array([0,0])):
 
@@ -17,6 +18,7 @@ N = 100
 R = 3
 
 objs = []
+patterns = []
 c10 = np.array([-8,8])
 c1f = np.array([8,-8])
 c20 = np.array([7.5,6])
@@ -36,7 +38,9 @@ for i in range(N):
     rad_fun3 = lambda t: 1.5*R  + 0.5*np.sin(1.5*t)*np.cos(1.5*t)
     blob3 = create_blob(rad_fun3,100,c3)
     objs.append([blob1,blob2,blob3])
+    patterns.append(Pattern([blob1,blob2,blob3]))
 
+# sequence of Pattern objects
 
 fig,ax = plt.subplots(figsize=[6,6])
 def init():
