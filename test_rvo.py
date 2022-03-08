@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
         # plot drones
         for i in range(len(fleet)):
-            ax.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[i])
+            ax.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[states[i,j]])
 
         # plot pattern
         pattern.visualize(ax)
