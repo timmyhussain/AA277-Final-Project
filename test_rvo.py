@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     t = 0.01
     num_steps = 600
-    num_agents = 20
+    num_agents = 10
 
     pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose())
 
@@ -25,9 +25,9 @@ if __name__ == "__main__":
         y = 2*np.random.random()
         fleet.append(Drone(x,y,i))
 
-    GS = GhostServer(fleet,[],max_dist=2.5)
+    GS = GhostServer(fleet,[],pattern,max_dist=2.5)
 
-    GS.update_pattern(pattern)
+    #GS.update_pattern()
     GS.update_neighbors()
 
     #%% Simulation loop
@@ -42,6 +42,7 @@ if __name__ == "__main__":
                 print("Agent %d. ID = %s. State = %s. Target = %s. Position = %s"%(k,GS.fleet[k].identifier,GS.fleet[k].state,target,position))
         GS.update_neighbors()
         GS.update_positions()
+        #GS.update_pattern()
 
     trajectories = GS.return_trajectories()
     states = GS.return_states()
