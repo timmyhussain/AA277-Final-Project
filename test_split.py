@@ -88,11 +88,9 @@ def animate(j):
     ax.set_ylim(-4,4)
 
 anim = animation.FuncAnimation(fig,animate,frames=len(patterns),repeat=True)
-#plt.show()
+# plt.show()
 
 print("Saving animation...")
 f = r"test_split.mp4"
 writervideo = animation.FFMpegWriter(fps = 50)
 anim.save(f,writer=writervideo)
-
-

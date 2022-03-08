@@ -11,7 +11,7 @@ import numpy as np
 from matplotlib import animation
 import matplotlib.patches as patches
 import matplotlib
-from copy import deepcopy 
+from copy import deepcopy
 from pattern import Shape, Pattern
 
 args = {"size": 20}
@@ -79,9 +79,9 @@ class Drone:
             self.consensus_step()
             self.vx = 0
             self.vy = 0
-        elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.05:
-            self.vx = 0
-            self.vy = 0
+        # elif np.sqrt((self.x-self.target_x)**2 + (self.y-self.target_y)**2) < 0.05:
+        #     self.vx = 0
+        #     self.vy = 0
         else:
             self.set_vel_collision_avoidance();
 
@@ -199,6 +199,9 @@ class Drone:
             vB = np.array([[drone.vx], [drone.vy]])
             pos_AB = np.array([[drone.x-self.x], [drone.y-self.y]])
             dist_AB = np.linalg.norm(pos_AB)
+            if dist_AB < 2.2*R:
+                print(dist_AB)
+                dist_AB = 2.2*R;
             theta = np.arcsin(2.2*R / dist_AB)
 
             a_right = np.array([[np.cos(np.pi/2-theta), np.sin(np.pi/2-theta)], [-np.sin(np.pi/2-theta), np.cos(np.pi/2-theta)]]) @ pos_AB/dist_AB
@@ -247,7 +250,7 @@ class GhostServer:
             cand_x = bound * (2*np.random.random()-1)
             cand_y = bound * (2*np.random.random()-1)
             dists = np.sqrt((cand_x - X)**2 + (cand_y - Y)**2)
-            if (dists > 0.1).all():
+            if (dists > 0.22).all():
                 X[i] = cand_x; Y[i] = cand_y
                 self.fleet.append(Drone(cand_x,cand_y,i))
                 i += 1
@@ -261,7 +264,7 @@ class GhostServer:
         for d in self.fleet:
             d.set_pattern(self.pattern)
             d.set_pattern_target()
-    
+
     def set_pattern(self, pattern):
         self.pattern = pattern
         self.pattern_log.append(deepcopy(self.pattern))
