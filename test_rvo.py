@@ -13,24 +13,25 @@ if __name__ == "__main__":
     #%% Initialization
 
     t = 0.01
-
-    d1 = Drone(-5,-1,0,"")
-    d2 = Drone(-6,1,1,"")
-    d3 = Drone(-7,1,2,"")
-    d4 = Drone(-8,-1,3,"")
-
-    fleet = [d1,d2,d3,d4]
+    num_steps = 500
+    num_agents = 8
 
     pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose())
+
+    fleet = []
+    np.random.seed(1)
+    for i in range(num_agents):
+        x = 2*np.random.random()
+        y = 2*np.random.random()
+        fleet.append(Drone(x,y,i))
 
     GS = GhostServer(fleet,[],max_dist=2.5)
 
     GS.update_pattern(pattern)
     GS.update_neighbors()
-    cmap = {0:"blue", 1: "red", 2: "green", 3: "black"} #for plotting
 
     #%% Simulation loop
-    for i in range(1500):
+    for i in range(num_steps):
         if i%25 == 0:
             print("Iteration %d"%i)
             for k in range(len(fleet)):
@@ -43,34 +44,38 @@ if __name__ == "__main__":
         GS.update_positions()
 
     trajectories = GS.return_trajectories()
-    quit()
+    reduce = 10
+    trajectories = trajectories[:,range(0,num_steps,reduce),:]
+    print(trajectories.shape)
     #%% Plotting
 
     # for i in range(len(fleet)):
     #     plt.plot(trajectories[i, :, 0], trajectories[i, :, 1], label="Drone: "+str(i))
 
     fig, ax = plt.subplots(figsize=[10, 10])
-    ax.set_xlim(-10, 2)
-    ax.set_ylim(0, 2)
+    ax.set_xlim(-8, 2)
+    ax.set_ylim(-8, 2)
     # data = np.array([o.reshape(o.shape[1], -1) for o in outputs])
     # sns.heatmap(data[0], vmax=1, square=True)
     # plt.scatter(0, 1, s=100)
+    cmap = {}
     for i in range(len(fleet)):
-        plt.plot(trajectories[i, 0, 0], trajectories[i, 0, 1], label="Drone: "+str(i), color = cmap[i])
+        p = plt.plot(trajectories[i, 0, 0], trajectories[i, 0, 1], label="Drone: "+str(i))
+        cmap[i] = p[0].get_color()
         plt.xlabel("$x$ position")
         plt.ylabel("$y$ position")
 
     def init():
           # sns.heatmap(data[0], vmax=1, square=True, cbar=False)
         for i in range(len(fleet)):
-            plt.plot(trajectories[i, 0, 0], trajectories[i, 0, 1], label="Drone: "+str(i), color = cmap[i])
+            plt.plot(trajectories[i, 0, 0], trajectories[i, 0, 1], marker="o",label="Drone: "+str(i), color = cmap[i])
         plt.xlabel("$x$ position")
         plt.ylabel("$y$ position")
 
     def animate(j):
         # sns.heatmap(data[i], vmax=1, square=True, cbar=False)
         for i in range(len(fleet)):
-            plt.plot(trajectories[i, :j, 0], trajectories[i, :j, 1], label="Drone: "+str(i), color = cmap[i])
+            plt.plot(trajectories[i, j, 0], trajectories[i, j, 1],marker="o",label="Drone: "+str(i), color = cmap[i])
         plt.xlabel("$x$ position")
         plt.ylabel("$y$ position")
 
@@ -79,5 +84,5 @@ if __name__ == "__main__":
     print("Saving animation")
     #%% save animation
     f = r"trajectories2.mp4"
-    writervideo = animation.FFMpegWriter(fps=1/t)
+    writervideo = animation.FFMpegWriter(fps=1/(reduce*t))
     anim.save(f, writer=writervideo)

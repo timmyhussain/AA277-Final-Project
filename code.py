@@ -49,7 +49,7 @@ class Shape:
 
 
 class Drone:
-    def __init__(self, x_init, y_init, ix, identifier):
+    def __init__(self, x_init, y_init, ix, identifier=""):
         self.x = x_init
         self.y = y_init
         self.cons_var = x_init
@@ -80,7 +80,7 @@ class Drone:
             min_id = min(self.identifier, d2.identifier)
             max_id = max(self.identifier, d2.identifier)
             if len(max_id.split(min_id)[0]) == 0:
-                if not self.converged:
+                if not self.converged and self.state != State.CONSENSUS:
                     self.identifier = max_id
                 return True
         return False
@@ -139,7 +139,7 @@ class Drone:
         # If we've reached convergence assign a new ID and move to driving state
         deriv = sum([d.cons_var - self.cons_var for d in self.cons_neighbors])
         #print("Agent %s. ID = %s. State = %s. Cons = %.3f. Deriv = %.3f"%(self.name,self.identifier,self.state,self.cons_var,deriv))
-        self.cons_var += 0.1*deriv
+        self.cons_var += 0.01*deriv
         if abs(deriv) < 0.05:
             self.converged = True
 
