@@ -14,9 +14,9 @@ if __name__ == "__main__":
 
     t = 0.01
     num_steps = 600
-    num_agents = 10
+    num_agents = 20
 
-    pattern = Shape(np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose())
+    pattern = Shape(1.5*np.array([[-1,-1,1,1],[-1,1,1,-1]]).transpose())
 
     fleet = []
     np.random.seed(1)

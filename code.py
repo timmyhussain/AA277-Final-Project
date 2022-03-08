@@ -50,7 +50,7 @@ class Shape:
         self.path = mpPath.Path(self.vertices)
 
     def visualize(self, ax):
-        patch = patches.PathPatch(self.path, facecolor='orange', alpha = 0.2, lw=0)
+        patch = patches.PathPatch(self.path, facecolor='blueviolet', alpha = 0.2, lw=0)
         ax.add_patch(patch)
 
 
@@ -115,7 +115,7 @@ class Drone:
 
     def log_now(self):
         self.log.append((self.x, self.y))
-        if self.state == State.DRIVING and np.linalg.norm(np.array([self.target_x,self.target_y])-np.array([self.x,self.y])) < 0.01:
+        if self.state == State.DRIVING and np.linalg.norm(np.array([self.target_x,self.target_y])-np.array([self.x,self.y])) < 0.075:
             self.state_log.append(State.IDLE)
         else:
             self.state_log.append(self.state)
