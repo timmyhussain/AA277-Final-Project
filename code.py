@@ -21,39 +21,6 @@ class State(Enum):
     CONSENSUS = 2
 
 
-class Shape:
-    def __init__(self, vertices, update_rule='STATIC'):
-    
-        self.update_rule = update_rule # possible options = 'STATIC','TRANSLATE','EXPAND'
-        self.path = mpPath.Path(vertices)
-        self.vertices = self.path.vertices # np array
-        m,d = vertices.shape
-        if d != 2:
-            raise Exception("Expected vertices to have shape (m,2)")
-
-        # Parameters
-        self.dx = 0.1; self.dy = 0.1 # for translation
-        self.center = np.mean(vertices, axis=0) # for expansion
-        self.expand_rate = 0.1
-
-    def update(self):
-        if self.update_rule == 'STATIC':
-            pass
-        elif self.update_rule == 'TRANSLATE':
-            # Simple translation
-            self.vertices += [self.dx, self.dy]
-        elif self.update_rule == 'EXPAND':
-            # Expand points out from center
-            dx = self.expand_rate * (self.vertices - self.center)
-            self.vertices += dx
-        
-        self.path = mpPath.Path(self.vertices)
-
-    def visualize(self, ax):
-        patch = patches.PathPatch(self.path, facecolor='orange', alpha = 0.2, lw=0)
-        ax.add_patch(patch)
-
-
 class Drone:
     def __init__(self, x_init, y_init, ix, identifier=""):
         self.x = x_init
